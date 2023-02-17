@@ -64,9 +64,9 @@ public class HackathonServiceTest {
         // Create few Problem tags
         Tag tagSorting = new Tag("Sorting");
         Tag tagBFS = new Tag("BFS");
-        Tag tagDFS = new Tag("DFS");
         Tag tagDP = new Tag("DP");
         Tag tagBST = new Tag("BST");
+        Tag tagDFS = new Tag("DFS");
 
         // Create few questions
         Problem problem1 = new Problem("1",
@@ -87,10 +87,24 @@ public class HackathonServiceTest {
                 ProblemDifficulty.MEDIUM,
                 Score100);
 
+        Problem problem4 = new Problem("4",
+                "Problem Statement4",
+                Arrays.asList(tagBST),
+                ProblemDifficulty.MEDIUM,
+                Score100);
+
+        Problem problem5 = new Problem("5",
+                "Problem Statement5",
+                Arrays.asList(tagBFS),
+                ProblemDifficulty.HARD,
+                Score150);
+
         // Add problems to system
         hackathonService.addProblem(problem1);
         hackathonService.addProblem(problem2);
         hackathonService.addProblem(problem3);
+        hackathonService.addProblem(problem4);
+        hackathonService.addProblem(problem5);
 
         // Create few time taken to solve (in mins)
         Long timeTaken5 = Long.valueOf(5);
@@ -105,19 +119,36 @@ public class HackathonServiceTest {
         hackathonService.solve(user1, problem1, SubmissionStatus.SUCCESS, timeTaken5);
         hackathonService.solve(user1, problem2, SubmissionStatus.SUCCESS, timeTaken10);
         hackathonService.solve(user1, problem3, SubmissionStatus.FAILURE, timeTaken30);
+        hackathonService.solve(user1, problem4, SubmissionStatus.SUCCESS, timeTaken60);
 
         hackathonService.solve(user2, problem2, SubmissionStatus.SUCCESS, timeTaken10);
         hackathonService.solve(user2, problem3, SubmissionStatus.FAILURE, timeTaken30);
+        hackathonService.solve(user2, problem5, SubmissionStatus.SUCCESS, timeTaken100);
 
+        hackathonService.solve(user3, problem5, SubmissionStatus.FAILURE, timeTaken15);
         hackathonService.solve(user3, problem3, SubmissionStatus.FAILURE, timeTaken100);
 
+        // User Like few questions
+        hackathonService.likeProblem(user1, problem1);
+        hackathonService.likeProblem(user1, problem2);
+
+        hackathonService.likeProblem(user2, problem1);
+
+        hackathonService.likeProblem(user3, problem3);
+
         // Get and verify questions solved
-        assert hackathonService.fetchSolvedProblems(user1).size() == 2 ;
-        assert hackathonService.fetchSolvedProblems(user2).size() == 1 ;
+        assert hackathonService.fetchSolvedProblems(user1).size() == 3 ;
+        assert hackathonService.fetchSolvedProblems(user2).size() == 2 ;
         assert hackathonService.fetchSolvedProblems(user3).size() == 0 ;
+
+        // Get and verify top liked questions
+        // assert hackathonService.getTopNProblems(3).get(0) == problem1;
 
         // Get and verify leader user
         assert hackathonService.getLeader() == user1;
+
+        // Get and relevant questions list
+        hackathonService.solve(user3, problem3, SubmissionStatus.FAILURE, timeTaken100);
 
         // Fetch and verify Easy problem list
         assert hackathonService.fetchProblems(ProblemDifficulty.EASY).size() == 1;

@@ -25,4 +25,8 @@ public class ProblemMetrics {
         this.solvedUsers.add(user);
         this.avgSolveTimeInMin = (this.avgSolveTimeInMin + timeTaken) / this.solvedUsers.size();
     }
+
+    public void changeLikesCount(int n) {
+        this.likesCount = this.likesCount + n;
+    }
 }

@@ -15,7 +15,7 @@ public interface HackathonService {
 
     void addProblem(Problem problem);
 
-    void solve(User user, Problem problem, SubmissionStatus status, Long timeTaken) throws UserNotFoundException;
+    List<Problem> solve(User user, Problem problem, SubmissionStatus status, Long timeTaken) throws UserNotFoundException;
 
     List<Problem> fetchSolvedProblems(User user) throws UserNotFoundException;
 
@@ -33,4 +33,8 @@ public interface HackathonService {
 
     // Fetch problems based on list of tags
     List<ProblemMetrics> fetchProblems(List<Tag> tags);
+
+    void likeProblem(User user, Problem problem);
+
+    void disLikeProblem(User user, Problem problem);
 }

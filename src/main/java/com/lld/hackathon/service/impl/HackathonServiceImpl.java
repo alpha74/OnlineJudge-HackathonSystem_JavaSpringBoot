@@ -12,8 +12,12 @@ import com.lld.hackathon.service.HackathonService;
 import lombok.NonNull;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+
+import static com.lld.hackathon.constants.GlobalConstants.DISLIKE_ONE;
+import static com.lld.hackathon.constants.GlobalConstants.LIKE_ONE;
 
 public class HackathonServiceImpl implements HackathonService {
     private UserRepo userRepository;
@@ -47,10 +51,11 @@ public class HackathonServiceImpl implements HackathonService {
     }
 
     @Override
-    public void solve(User user, Problem problem, SubmissionStatus status, Long timeTaken) throws UserNotFoundException {
+    public List<Problem> solve(User user, Problem problem, SubmissionStatus status, Long timeTaken) throws UserNotFoundException {
         if(Objects.isNull(userRepository.findById(user.getId())))
             throw new UserNotFoundException(user.getId());
 
+        List<Problem> relevantProblems = new ArrayList<>();
         Submission submission = new Submission(user, problem, status);
         submissionRepository.addSubmission(user, submission);
 
@@ -69,7 +74,12 @@ public class HackathonServiceImpl implements HackathonService {
 
             // Update user score
             userRepository.addOrUpdateUser(user);
+
+            // Get relevant problems
+            relevantProblems = getNRecommendedProblems(problem, 3);
         }
+
+        return relevantProblems;
     }
 
     @Override
@@ -108,11 +118,17 @@ public class HackathonServiceImpl implements HackathonService {
     @Override
     public List<Problem> getTopNProblems(int n) {
         return null;
+        // TODO
     }
 
     @Override
     public List<Problem> getNRecommendedProblems(Problem problem, int n) {
-        return null;
+        List<Problem> problemList = new ArrayList<>() ;
+
+        // Passing n+1 as
+        problemList = problemRepository.getNProblemsByTag(problem, n);
+
+        return problemList;
     }
 
     @Override
@@ -137,6 +153,30 @@ public class HackathonServiceImpl implements HackathonService {
     public List<ProblemMetrics> fetchProblems(List<Tag> tags) {
         return null;
     }
+
+    @Override
+    public void likeProblem(User user, Problem problem) {
+        Problem currProblem = problemRepository.getById(problem.getId());
+
+        if(currProblem == null)
+            return ;
+
+        ProblemMetrics problemMetrics = problemMetricsRepository.fetchMetrics(currProblem);
+        problemMetrics.changeLikesCount(LIKE_ONE);
+    }
+
+
+    @Override
+    public void disLikeProblem(User user, Problem problem) {
+        Problem currProblem = problemRepository.getById(problem.getId());
+
+        if(currProblem == null)
+            return ;
+
+        ProblemMetrics problemMetrics = problemMetricsRepository.fetchMetrics(currProblem);
+        problemMetrics.changeLikesCount(DISLIKE_ONE);
+    }
+
 
     private Long getScore(Problem problem, Long timeTaken) {
         if(timeTaken <= 5)
